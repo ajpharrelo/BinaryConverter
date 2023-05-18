@@ -14,12 +14,18 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.ColumnSpan="64" Grid.Row="0">
-            <ui:TitleBar ShowMaximize="False"/>
+        <StackPanel Grid.Row="0">
+            <ui:TitleBar Title="Binary Converter" ShowMaximize="False"/>
+            
+            <TextBlock TextAlignment="Left" FontSize="25" Margin="10" Text="Bits"/>
+        </StackPanel>
 
-            <TextBlock TextAlignment="Center" FontSize="25" Text="Binary Converter"/>
+        <StackPanel  Grid.Row="2" Margin="10" Width="auto">
+            <TextBlock TextAlignment="Left" VerticalAlignment="Center" FontSize="25" Text="Value"/>
+            <ui:TextBox ClearButtonEnabled="False" Text="0" IsReadOnly="True" Margin="0,5" x:Name="txtDecValue"/>
         </StackPanel>
 
     </Grid>
