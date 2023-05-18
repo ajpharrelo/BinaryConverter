@@ -14,27 +14,39 @@ namespace BinaryConverter.Windows
         // bitArray[0] = 128
         // ...
         // bitArray[7] = 1
-        private BitArray bitArray = new BitArray(8);
+        private BitArray bitArray = new BitArray(32);
         private double largestBit = 0;
+
+
 
         public MainWindow()
         {
             largestBit = Math.Pow(2, bitArray.Length) / 2;
             InitializeComponent();
 
-            Grid bitGrid = new Grid();
-
             double decrement = largestBit;
-            for (int i = 0; i < bitArray.Length; i++)
+            short rowCount = 0;
+
+            Grid bitGrid = new Grid();
+            bitGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            bitGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            int currentRow = 0;
+
+            for (int j = 0; j < bitArray.Length; j++)
             {
-                int currentBit = i + 1;
-
-                ColumnDefinition newCol = new ColumnDefinition();
-                //newCol.Width = GridLength.Auto;
-                bitGrid.ColumnDefinitions.Add(newCol);
-
                 StackPanel bitPanel = new StackPanel();
-                bitPanel.SetValue(Grid.ColumnProperty, i);
+
+                if (j >= 8 && j % 8 == 0)
+                {
+                    currentRow = 1;
+                }
+
+                bitPanel.SetValue(Grid.ColumnProperty, j);
+                bitPanel.SetValue(Grid.RowProperty, currentRow);
+
+                bitGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                int currentBit = j + 1;
 
                 // Label
                 Label label = new Label { Content = decrement.ToString(), HorizontalAlignment = HorizontalAlignment.Center };
@@ -44,21 +56,19 @@ namespace BinaryConverter.Windows
 
                 // Textbox
                 Wpf.Ui.Controls.TextBox bitBox = new Wpf.Ui.Controls.TextBox();
-                bitBox.PlaceholderText = "Bit " + currentBit.ToString();
                 bitBox.Margin = new Thickness(10, 5, 10, 10);
                 bitBox.ClearButtonEnabled = false;
                 bitBox.Text = "0";
                 bitBox.MouseLeftButtonDown += BitBox_Click;
                 bitBox.TextChanged += BitBox_BitChanged;
-                bitPanel.Children.Add(bitBox);
 
+                bitPanel.Children.Add(bitBox);
                 bitGrid.Children.Add(bitPanel);
 
             }
 
-            windowGrid.Children.Add(bitGrid);
-
             bitGrid.SetValue(Grid.RowProperty, 1);
+            windowGrid.Children.Add(bitGrid);
         }
 
         private void BitBox_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
