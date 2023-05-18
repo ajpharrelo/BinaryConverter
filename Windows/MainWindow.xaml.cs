@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Windows.Controls;
+using System.Collections;
 using Wpf.Ui.Controls;
+using System.Windows;
 
 namespace BinaryConverter.Windows
 {
@@ -8,6 +11,7 @@ namespace BinaryConverter.Windows
     /// </summary>
     public partial class MainWindow : UiWindow 
     {
+
         public MainWindow()
         {
             InitializeComponent();
