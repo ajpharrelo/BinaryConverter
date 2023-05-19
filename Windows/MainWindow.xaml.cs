@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Collections;
 using Wpf.Ui.Controls;
 using System.Windows;
+using System.Diagnostics;
 
 namespace BinaryConverter.Windows
 {
@@ -14,38 +15,39 @@ namespace BinaryConverter.Windows
         // bitArray[0] = 128
         // ...
         // bitArray[7] = 1
-        private BitArray bitArray = new BitArray(32);
+        private int bitSize = 8;
+        private BitArray? bitArray = null;
         private double largestBit = 0;
-
-
+        private Grid bitGrid = new Grid();
 
         public MainWindow()
         {
-            largestBit = Math.Pow(2, bitArray.Length) / 2;
             InitializeComponent();
+
+            windowGrid.Children.Add(bitGrid);
+            CreateBitGrid();
+        }
+
+        #region Global Methods
+        private void CreateBitGrid()
+        {
+            bitGrid.Children.Clear();
+            bitGrid.ColumnDefinitions.Clear();
+
+            bitArray = new BitArray(bitSize);
+            largestBit = Math.Pow(2, bitArray.Length) / 2;
 
             double decrement = largestBit;
             short rowCount = 0;
 
-            Grid bitGrid = new Grid();
-            bitGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            bitGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-
-            int currentRow = 0;
-
             for (int j = 0; j < bitArray.Length; j++)
             {
                 StackPanel bitPanel = new StackPanel();
-
-                if (j >= 8 && j % 8 == 0)
-                {
-                    currentRow = 1;
-                }
-
-                bitPanel.SetValue(Grid.ColumnProperty, j);
-                bitPanel.SetValue(Grid.RowProperty, currentRow);
+                bitPanel.SetValue(Grid.RowProperty, 1);
 
                 bitGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                bitPanel.SetValue(Grid.ColumnProperty, j);
+
                 int currentBit = j + 1;
 
                 // Label
@@ -59,7 +61,7 @@ namespace BinaryConverter.Windows
                 bitBox.Margin = new Thickness(10, 5, 10, 10);
                 bitBox.ClearButtonEnabled = false;
                 bitBox.Text = "0";
-                bitBox.MouseLeftButtonDown += BitBox_Click;
+                bitBox.PreviewMouseDown += BitBox_Click;
                 bitBox.TextChanged += BitBox_BitChanged;
 
                 bitPanel.Children.Add(bitBox);
@@ -67,14 +69,7 @@ namespace BinaryConverter.Windows
 
             }
 
-            bitGrid.SetValue(Grid.RowProperty, 1);
-            windowGrid.Children.Add(bitGrid);
-        }
-
-        private void BitBox_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            Wpf.Ui.Controls.TextBox bitBox = (Wpf.Ui.Controls.TextBox)sender;
-            bitBox.SelectAll();
+            bitGrid.SetValue(Grid.RowProperty, 2);
         }
 
         private void CalculateDecimal()
@@ -95,6 +90,20 @@ namespace BinaryConverter.Windows
             }
 
             txtDecValue.Text = decimalValue.ToString();
+        }
+        #endregion
+
+        #region UI Events
+        private void BitBox_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Wpf.Ui.Controls.TextBox bitBox = (Wpf.Ui.Controls.TextBox)sender;
+            bitBox.SelectAll();
+        }
+
+        private void BitBox_PreviewGotKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
+        {
+            Wpf.Ui.Controls.TextBox bitBox = (Wpf.Ui.Controls.TextBox)sender;
+            bitBox.SelectAll();
         }
 
         private void BitBox_BitChanged(object sender, TextChangedEventArgs e)
@@ -120,5 +129,16 @@ namespace BinaryConverter.Windows
                 bitBox.Text = "0";
             }
         }
+
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            Slider slider = (Slider)sender; 
+
+            lblBits.Text = "Bits " + slider.Value;
+            bitSize = (int)slider.Value;
+            CreateBitGrid();
+        }
+
+        #endregion
     }
 }
