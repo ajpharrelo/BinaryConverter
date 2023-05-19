@@ -29,11 +29,19 @@ namespace BinaryConverter.Windows
         }
 
         #region Global Methods
-        private void CreateBitGrid()
+        private void CreateBitGrid(BitArray bitArr = null)
         {
             bitGrid.Children.Clear();
 
-            bitArray = new BitArray(maxBitSize);
+            if(bitArr != null)
+            {
+                bitArray = bitArr;
+            }
+            else
+            {
+                bitArray = new BitArray(maxBitSize);
+            }
+
             largestBit = Math.Pow(2, bitArray.Length) / 2;
 
             double decrement = largestBit;
@@ -124,9 +132,37 @@ namespace BinaryConverter.Windows
             txtDecValue.Text = decimalValue.ToString();
         }
         
-        private void PasteBinary()
+        private bool PasteBinary(string binaryString)
         {
+            if(binaryString.Length % 8 == 0 && binaryString.Length >= 8)
+            {
+                BitArray binaryNum = new BitArray(binaryString.Length);
 
+                for (int i = 0; i < binaryString.Length; i++)
+                {
+                    // TODO: Need to find Bitbox for each bit and then update text to binary value 
+                    if (binaryString[i] == '1')
+                    {
+                        binaryNum[i] = true;
+                    }
+                    else if (binaryString[i] == '0')
+                    {
+                        binaryNum[i] = false;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+
+                bitArray = binaryNum;
+                // TODO: Need to create new bitgrid for pasted binary num
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
         #endregion
 
@@ -147,7 +183,10 @@ namespace BinaryConverter.Windows
                 ctrlDown = false;
                 vDown = false;
 
-                Debug.WriteLine(Clipboard.GetText(TextDataFormat.Text));
+                if(!PasteBinary(Clipboard.GetText(TextDataFormat.Text)))
+                {
+                    System.Windows.MessageBox.Show("Invalid binary number pasted", "Invalid input");
+                }
             }
             else
             {
