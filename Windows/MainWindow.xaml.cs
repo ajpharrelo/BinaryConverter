@@ -5,6 +5,7 @@ using Wpf.Ui.Controls;
 using System.Windows;
 using System.Diagnostics;
 using System.Windows.Media;
+using System.Windows.Input;
 
 namespace BinaryConverter.Windows
 {
@@ -122,9 +123,47 @@ namespace BinaryConverter.Windows
 
             txtDecValue.Text = decimalValue.ToString();
         }
+        
+        private void PasteBinary()
+        {
+
+        }
         #endregion
 
         #region UI Events
+        private void UiWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.KeyDown += MainWindow_KeyDown;
+        }
+
+
+        private bool ctrlDown = false;
+        private bool vDown = false;
+        private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+
+            if(ctrlDown && vDown)
+            {
+                ctrlDown = false;
+                vDown = false;
+
+                Debug.WriteLine(Clipboard.GetText(TextDataFormat.Text));
+            }
+            else
+            {
+                // Detect CTRL + V
+                if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
+                {
+                    ctrlDown = true;
+                }
+
+                if (e.Key == Key.V)
+                {
+                    vDown = true;
+                }
+            }
+        }
+
         private void BitBox_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             Wpf.Ui.Controls.TextBox bitBox = (Wpf.Ui.Controls.TextBox)sender;
@@ -173,5 +212,6 @@ namespace BinaryConverter.Windows
         }
 
         #endregion
+
     }
 }
