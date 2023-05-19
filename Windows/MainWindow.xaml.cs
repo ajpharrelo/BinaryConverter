@@ -4,6 +4,7 @@ using System.Collections;
 using Wpf.Ui.Controls;
 using System.Windows;
 using System.Diagnostics;
+using System.Windows.Media;
 
 namespace BinaryConverter.Windows
 {
@@ -15,16 +16,14 @@ namespace BinaryConverter.Windows
         // bitArray[0] = 128
         // ...
         // bitArray[7] = 1
-        private int bitSize = 8;
+        private int maxBitSize;
         private BitArray? bitArray = null;
         private double largestBit = 0;
-        private Grid bitGrid = new Grid();
 
         public MainWindow()
         {
             InitializeComponent();
-
-            windowGrid.Children.Add(bitGrid);
+            maxBitSize = 8;
             CreateBitGrid();
         }
 
@@ -32,23 +31,39 @@ namespace BinaryConverter.Windows
         private void CreateBitGrid()
         {
             bitGrid.Children.Clear();
-            bitGrid.ColumnDefinitions.Clear();
 
-            bitArray = new BitArray(bitSize);
+            bitArray = new BitArray(maxBitSize);
             largestBit = Math.Pow(2, bitArray.Length) / 2;
 
             double decrement = largestBit;
-            short rowCount = 0;
+            int rowItemMax = 8;
 
-            for (int j = 0; j < bitArray.Length; j++)
+            // This code will automatically create a new row
+            // for a specified amount of items per row.
+
+            int itemCount = 0;
+            int cols = 0;
+            int rows = 0;
+            int bits = 0;
+
+            // Create first initial row
+            bitGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            // Create columns
+            for (int i = 0; i < rowItemMax; i++)
             {
+                bitGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            }
+
+            foreach (bool bit in bitArray)
+            {
+                // Using a square as an example of a UI element.
                 StackPanel bitPanel = new StackPanel();
+                bitPanel.HorizontalAlignment = HorizontalAlignment.Center;
                 bitPanel.SetValue(Grid.RowProperty, 1);
 
                 bitGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                bitPanel.SetValue(Grid.ColumnProperty, j);
-
-                int currentBit = j + 1;
+                bitPanel.SetValue(Grid.ColumnProperty, bits);
 
                 // Label
                 Label label = new Label { Content = decrement.ToString(), HorizontalAlignment = HorizontalAlignment.Center };
@@ -58,6 +73,7 @@ namespace BinaryConverter.Windows
 
                 // Textbox
                 Wpf.Ui.Controls.TextBox bitBox = new Wpf.Ui.Controls.TextBox();
+                bitBox.Name = "b" + bits;
                 bitBox.Margin = new Thickness(10, 5, 10, 10);
                 bitBox.ClearButtonEnabled = false;
                 bitBox.Text = "0";
@@ -67,6 +83,21 @@ namespace BinaryConverter.Windows
                 bitPanel.Children.Add(bitBox);
                 bitGrid.Children.Add(bitPanel);
 
+                bitPanel.SetValue(Grid.RowProperty, rows);
+                bitPanel.SetValue(Grid.ColumnProperty, cols);
+
+                cols++;
+                itemCount++;
+                bits++;
+
+                // Every time rowItemMax is equal to itemCount
+                // Create a new row and reset column count
+                if (itemCount >= rowItemMax && itemCount % rowItemMax == 0)
+                {
+                    bitGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+                    rows++;
+                    cols = 0;
+                }
             }
 
             bitGrid.SetValue(Grid.RowProperty, 2);
@@ -117,7 +148,7 @@ namespace BinaryConverter.Windows
                 && int.Parse(bitValue) <= 1)
             {
                 // bitBox parent stack panel column number is equivalent to bit.
-                int bit = Grid.GetColumn((StackPanel)bitBox.Parent);
+                int bit = int.Parse(bitBox.Name.Replace("b", ""));
 
                 bitArray[bit] = bitValue == "1" ? true : false;
 
@@ -135,8 +166,10 @@ namespace BinaryConverter.Windows
             Slider slider = (Slider)sender; 
 
             lblBits.Text = "Bits " + slider.Value;
-            bitSize = (int)slider.Value;
-            CreateBitGrid();
+            maxBitSize = (int)slider.Value;
+            
+            if(bitGrid != null)
+                CreateBitGrid();
         }
 
         #endregion

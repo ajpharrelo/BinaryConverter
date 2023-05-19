@@ -8,7 +8,8 @@
         mc:Ignorable="d"
         ExtendsContentIntoTitleBar="True"
         ResizeMode="NoResize"
-        Title="Binary Converter" Height="450" Width="1000">
+             WindowStartupLocation="CenterScreen"
+        Title="Binary Converter" Height="480" Width="480">
     <Grid x:Name="windowGrid">
 
         <Grid.RowDefinitions>
@@ -18,17 +19,25 @@
             <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.Column="0">
             <ui:TitleBar Title="Binary Converter" ShowMaximize="False"/>
             
             <TextBlock TextAlignment="Left" FontSize="25" Margin="10" Text="Bits" x:Name="lblBits"/>
         </StackPanel>
 
-        <StackPanel Margin="10,20" Grid.Row="1">
-            <Slider ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Minimum="8" Ticks="8,16,32,64" Maximum="64"/>
+        <StackPanel Margin="10,20" Grid.Row="1" Grid.Column="0">
+            <Slider x:Name="bitSlider" ValueChanged="Slider_ValueChanged" IsSnapToTickEnabled="True" TickPlacement="BottomRight" Minimum="8" Ticks="8,16" Maximum="16"/>
         </StackPanel>
 
-        <StackPanel  Grid.Row="3" Margin="10" Width="auto">
+        <Grid x:Name="bitGrid" Width="auto" Grid.Column="0">
+            
+        </Grid>
+
+        <StackPanel Grid.Column="0" Grid.Row="3" Margin="10" Width="auto">
             <TextBlock TextAlignment="Left" VerticalAlignment="Center" FontSize="25" Text="Value"/>
             <ui:TextBox ClearButtonEnabled="False" Text="0" IsReadOnly="True" Margin="0,5" x:Name="txtDecValue"/>
         </StackPanel>

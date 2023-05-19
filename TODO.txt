@@ -1,0 +1,7 @@
+Bianry converter todo
+-------------------------
+
+- Copy paste binary numbers for easier use
+- Decimal to binary conversion
+- Multi-row support
+- Other values ?
