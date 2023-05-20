@@ -9,6 +9,7 @@ using System.Windows.Input;
 using System.Linq;
 using System.Windows.Documents;
 using System.Collections.Generic;
+using System.Text;
 
 namespace BinaryConverter.Windows
 {
@@ -36,6 +37,7 @@ namespace BinaryConverter.Windows
         {
             bitGrid.Children.Clear();
 
+            // TODO: This could be refactored
             if (bitArr != null)
             {
                 bitArray = bitArr;
@@ -149,9 +151,42 @@ namespace BinaryConverter.Windows
             return bitBoxes;
         }
 
+        private string CalculateBinary(int decNum)
+        {
+            int bitSize = 0;
+
+            if (decNum <= byte.MaxValue)
+            {
+                // 8 Bit
+                bitSize = 8;
+            }
+            else if (decNum <= ushort.MaxValue)
+            {
+                // 16 Bit 
+                bitSize = 16;
+
+            }
+
+            char[] binaryString = new char[bitSize];
+            int count = 1;
+
+            // 8 bit
+            while (decNum != 0)
+            {
+                ValueTuple<nint, nint> divD = Math.DivRem(decNum, 2);
+                decNum = (int)divD.Item1;
+                binaryString[binaryString.Length-count] = (int)divD.Item2 == 1 ? '1' : '0';
+                count++;
+            }
+
+            return new string(binaryString);
+        }
+
         private bool PasteBinary(string binaryString)
         {
-            if(binaryString.Length % 8 == 0 && binaryString.Length >= 8)
+            binaryString = binaryString.Replace("\0", "0");
+
+            if (binaryString.Length % 8 == 0 && binaryString.Length >= 8)
             {
                 BitArray binaryNum = new BitArray(binaryString.Length);
                 List<Wpf.Ui.Controls.TextBox> bitBoxes = FindBitBoxes();
@@ -175,10 +210,10 @@ namespace BinaryConverter.Windows
                     }
                 }
 
-                CalculateDecimal();
+                //CalculateDecimal();
 
                 bitArray = binaryNum;
-                // TODO: Need to create new bitgrid for pasted binary num
+                CreateBitGrid();
                 return true;
             }
             else
@@ -193,7 +228,6 @@ namespace BinaryConverter.Windows
         {
             this.KeyDown += MainWindow_KeyDown;
         }
-
 
         private bool ctrlDown = false;
         private bool vDown = false;
@@ -271,11 +305,18 @@ namespace BinaryConverter.Windows
             if(bitGrid != null)
             {
                 CreateBitGrid();
-                FindBitBoxes();
             }
         }
 
-        #endregion
+        private void txtDecValue_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string text = txtDecValue.Text;
 
+            if (int.TryParse(text, out _) && int.Parse(text) != 0 && txtDecValue.IsFocused)
+            {
+                PasteBinary(CalculateBinary(int.Parse(text)));
+            }
+        }
+        #endregion
     }
 }
