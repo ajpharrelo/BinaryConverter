@@ -6,13 +6,16 @@ using System.Windows;
 using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows.Input;
+using System.Linq;
+using System.Windows.Documents;
+using System.Collections.Generic;
 
 namespace BinaryConverter.Windows
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : UiWindow 
+    public partial class MainWindow : UiWindow
     {
         // bitArray[0] = 128
         // ...
@@ -33,7 +36,7 @@ namespace BinaryConverter.Windows
         {
             bitGrid.Children.Clear();
 
-            if(bitArr != null)
+            if (bitArr != null)
             {
                 bitArray = bitArr;
             }
@@ -131,12 +134,27 @@ namespace BinaryConverter.Windows
 
             txtDecValue.Text = decimalValue.ToString();
         }
-        
+
+        private List<Wpf.Ui.Controls.TextBox> FindBitBoxes()
+        {
+            List<Wpf.Ui.Controls.TextBox> bitBoxes = new List<Wpf.Ui.Controls.TextBox>();
+            IEnumerable<StackPanel> bitPanels = bitGrid.Children.OfType<StackPanel>();
+
+            foreach (StackPanel panel in bitPanels)
+            {
+                Wpf.Ui.Controls.TextBox bitBox = panel.Children.OfType<Wpf.Ui.Controls.TextBox>().ToList()[0];
+                bitBoxes.Add(bitBox);
+            }
+
+            return bitBoxes;
+        }
+
         private bool PasteBinary(string binaryString)
         {
             if(binaryString.Length % 8 == 0 && binaryString.Length >= 8)
             {
                 BitArray binaryNum = new BitArray(binaryString.Length);
+                List<Wpf.Ui.Controls.TextBox> bitBoxes = FindBitBoxes();
 
                 for (int i = 0; i < binaryString.Length; i++)
                 {
@@ -144,16 +162,20 @@ namespace BinaryConverter.Windows
                     if (binaryString[i] == '1')
                     {
                         binaryNum[i] = true;
+                        bitBoxes[i].Text = "1";
                     }
                     else if (binaryString[i] == '0')
                     {
                         binaryNum[i] = false;
+                        bitBoxes[i].Text = "0";
                     }
                     else
                     {
                         return false;
                     }
                 }
+
+                CalculateDecimal();
 
                 bitArray = binaryNum;
                 // TODO: Need to create new bitgrid for pasted binary num
@@ -247,7 +269,10 @@ namespace BinaryConverter.Windows
             maxBitSize = (int)slider.Value;
             
             if(bitGrid != null)
+            {
                 CreateBitGrid();
+                FindBitBoxes();
+            }
         }
 
         #endregion
