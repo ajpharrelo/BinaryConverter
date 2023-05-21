@@ -3,13 +3,7 @@ using System.Windows.Controls;
 using System.Collections;
 using Wpf.Ui.Controls;
 using System.Windows;
-using System.Diagnostics;
-using System.Windows.Media;
 using System.Windows.Input;
-using System.Linq;
-using System.Windows.Documents;
-using System.Collections.Generic;
-using System.Text;
 
 namespace BinaryConverter.Windows
 {
@@ -137,18 +131,26 @@ namespace BinaryConverter.Windows
             txtDecValue.Text = decimalValue.ToString();
         }
 
-        private List<Wpf.Ui.Controls.TextBox> FindBitBoxes()
+        private void UpdateBitBoxes(string binaryString)
         {
-            List<Wpf.Ui.Controls.TextBox> bitBoxes = new List<Wpf.Ui.Controls.TextBox>();
-            IEnumerable<StackPanel> bitPanels = bitGrid.Children.OfType<StackPanel>();
+            bitSlider.Value = binaryString.Length;
+            BitArray binaryNum = new BitArray(binaryString.Length);
+            CreateBitGrid(binaryNum);
 
-            foreach (StackPanel panel in bitPanels)
+            for (int i = 0; i < bitGrid.Children.Count; i++)
             {
-                Wpf.Ui.Controls.TextBox bitBox = panel.Children.OfType<Wpf.Ui.Controls.TextBox>().ToList()[0];
-                bitBoxes.Add(bitBox);
-            }
+                StackPanel e = (StackPanel) bitGrid.Children[i];
+                Wpf.Ui.Controls.TextBox bitBox = (Wpf.Ui.Controls.TextBox)e.Children[1];
 
-            return bitBoxes;
+                if (binaryString[i] == '1')
+                {
+                    bitBox.Text = "1";
+                }
+                else if (binaryString[i] == '0')
+                {
+                    bitBox.Text = "0";
+                }
+            }
         }
 
         private string CalculateBinary(int decNum)
@@ -164,7 +166,11 @@ namespace BinaryConverter.Windows
             {
                 // 16 Bit 
                 bitSize = 16;
-
+            }
+            else
+            {
+                // Larger bits
+                return "0000000000000000";
             }
 
             char[] binaryString = new char[bitSize];
@@ -179,41 +185,14 @@ namespace BinaryConverter.Windows
                 count++;
             }
 
-            return new string(binaryString);
+            return new string(binaryString).Replace("\0", "0");
         }
 
         private bool PasteBinary(string binaryString)
         {
-            binaryString = binaryString.Replace("\0", "0");
-
             if (binaryString.Length % 8 == 0 && binaryString.Length >= 8)
             {
-                BitArray binaryNum = new BitArray(binaryString.Length);
-                List<Wpf.Ui.Controls.TextBox> bitBoxes = FindBitBoxes();
-
-                for (int i = 0; i < binaryString.Length; i++)
-                {
-                    // TODO: Need to find Bitbox for each bit and then update text to binary value 
-                    if (binaryString[i] == '1')
-                    {
-                        binaryNum[i] = true;
-                        bitBoxes[i].Text = "1";
-                    }
-                    else if (binaryString[i] == '0')
-                    {
-                        binaryNum[i] = false;
-                        bitBoxes[i].Text = "0";
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                //CalculateDecimal();
-
-                bitArray = binaryNum;
-                CreateBitGrid();
+                UpdateBitBoxes(binaryString);
                 return true;
             }
             else
@@ -307,16 +286,17 @@ namespace BinaryConverter.Windows
                 CreateBitGrid();
             }
         }
-
-        private void txtDecValue_TextChanged(object sender, TextChangedEventArgs e)
+        private void btnDecToBin_Click(object sender, RoutedEventArgs e)
         {
             string text = txtDecValue.Text;
 
-            if (int.TryParse(text, out _) && int.Parse(text) != 0 && txtDecValue.IsFocused)
+            if (int.TryParse(text, out _) && int.Parse(text) != 0)
             {
                 PasteBinary(CalculateBinary(int.Parse(text)));
             }
         }
         #endregion
+
+
     }
 }
