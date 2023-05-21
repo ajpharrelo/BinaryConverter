@@ -15,14 +15,15 @@ namespace BinaryConverter.Windows
         // bitArray[0] = 128
         // ...
         // bitArray[7] = 1
-        private int maxBitSize;
-        private BitArray? bitArray = null;
-        private double largestBit = 0;
+        private int MaxBitSize;
+        private BitArray? BitArray = null;
+        private double LargestBit = 0;
 
         public MainWindow()
         {
             InitializeComponent();
-            maxBitSize = 8;
+            // Start with 8 bits
+            MaxBitSize = 8;
             CreateBitGrid();
         }
 
@@ -34,16 +35,16 @@ namespace BinaryConverter.Windows
             // TODO: This could be refactored
             if (bitArr != null)
             {
-                bitArray = bitArr;
+                BitArray = bitArr;
             }
             else
             {
-                bitArray = new BitArray(maxBitSize);
+                BitArray = new BitArray(MaxBitSize);
             }
 
-            largestBit = Math.Pow(2, bitArray.Length) / 2;
+            LargestBit = Math.Pow(2, BitArray.Length) / 2;
 
-            double decrement = largestBit;
+            double decrement = LargestBit;
             int rowItemMax = 8;
 
             // This code will automatically create a new row
@@ -63,7 +64,7 @@ namespace BinaryConverter.Windows
                 bitGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             }
 
-            foreach (bool bit in bitArray)
+            foreach (bool bit in BitArray)
             {
                 // Using a square as an example of a UI element.
                 StackPanel bitPanel = new StackPanel();
@@ -114,12 +115,12 @@ namespace BinaryConverter.Windows
         private void CalculateDecimal()
         {
             double decimalValue = 0;
-            double increment = largestBit;
+            double increment = LargestBit;
 
-            for (int i = 0; i < bitArray.Length; i++)
+            for (int i = 0; i < BitArray.Length; i++)
             {
                 // If bit = 1 add bit decimalValue to total
-                if (bitArray[i] == true)
+                if (BitArray[i] == true)
                 {
                     decimalValue += increment;
                 }
@@ -210,9 +211,10 @@ namespace BinaryConverter.Windows
 
         private bool ctrlDown = false;
         private bool vDown = false;
+        private bool cDown = false;
         private void MainWindow_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
-
+            // Handle CTRL + V  & CTRL + C for pasting binary numbers
             if(ctrlDown && vDown)
             {
                 ctrlDown = false;
@@ -223,9 +225,32 @@ namespace BinaryConverter.Windows
                     System.Windows.MessageBox.Show("Invalid binary number pasted", "Invalid input");
                 }
             }
+            if (ctrlDown && cDown)
+            {
+                ctrlDown = false;
+                cDown = false;
+
+                string binaryString = "";
+
+                foreach (bool bit in BitArray)
+                {
+                    if(bit)
+                    {
+                        binaryString += "1";
+                    }
+                    else
+                    {
+                        binaryString += "0";
+
+                    }
+                }
+
+                System.Windows.MessageBox.Show("Binary number copied !", "Copied to clipboard");
+                Clipboard.SetData(DataFormats.Text, binaryString);
+            }
             else
             {
-                // Detect CTRL + V
+                // Detect CTRL
                 if (e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl)
                 {
                     ctrlDown = true;
@@ -234,6 +259,11 @@ namespace BinaryConverter.Windows
                 if (e.Key == Key.V)
                 {
                     vDown = true;
+                }
+
+                if (e.Key == Key.C)
+                {
+                    cDown = true;
                 }
             }
         }
@@ -263,7 +293,7 @@ namespace BinaryConverter.Windows
                 // bitBox parent stack panel column number is equivalent to bit.
                 int bit = int.Parse(bitBox.Name.Replace("b", ""));
 
-                bitArray[bit] = bitValue == "1" ? true : false;
+                BitArray[bit] = bitValue == "1" ? true : false;
 
                 CalculateDecimal();
             }
@@ -279,7 +309,7 @@ namespace BinaryConverter.Windows
             Slider slider = (Slider)sender; 
 
             lblBits.Text = "Bits " + slider.Value;
-            maxBitSize = (int)slider.Value;
+            MaxBitSize = (int)slider.Value;
             
             if(bitGrid != null)
             {
@@ -296,7 +326,5 @@ namespace BinaryConverter.Windows
             }
         }
         #endregion
-
-
     }
 }

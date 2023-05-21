@@ -42,6 +42,7 @@
 
         <StackPanel Grid.Row="3" Grid.Column="0">
             <TextBlock VerticalAlignment="Bottom" TextAlignment="Center" FontSize="15" Margin="0,10,0,10" Text="You can paste in binary values with CTRL + V" Foreground="LightGray"/>
+            <TextBlock VerticalAlignment="Bottom" TextAlignment="Center" FontSize="15" Margin="0,10,0,10" Text="You can also copy binary values with CTRL + C" Foreground="LightGray"/>
         </StackPanel>
 
         <StackPanel Grid.Column="0" Grid.Row="4" Margin="10" Width="auto">
